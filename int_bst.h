@@ -36,3 +36,15 @@ void bst_add_node(int value, Node** head_ref) {
 	*current = new_node;
 	new_node->parent = parent_node;
 }
+
+void bst_free(Node* curr) {
+	if (curr == NULL) return;
+
+	Node* left = curr->left;
+	Node* right = curr->right;
+
+	free(curr);
+
+	bst_free(left);
+	bst_free(right);
+}
