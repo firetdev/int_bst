@@ -48,3 +48,10 @@ void bst_free(Node* curr) {
 	bst_free(left);
 	bst_free(right);
 }
+
+Node* search(Node* v, int target) {
+	if (v == NULL || v->data == target) return v;
+
+	if (target < v->data) return search(v->left, target);
+	return search(v->right, target);
+}
