@@ -55,3 +55,13 @@ Node* search(Node* v, int target) {
 	if (target < v->data) return search(v->left, target);
 	return search(v->right, target);
 }
+
+Node* min(Node* v) {
+	if (v == NULL || v->left == NULL) return v;
+	return min(v->left);
+}
+
+Node* max(Node* v) {
+	if (v == NULL || v->right == NULL) return v;
+	return max(v->right);
+}
