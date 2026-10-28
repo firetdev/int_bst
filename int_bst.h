@@ -49,19 +49,40 @@ void bst_free(Node* curr) {
 	bst_free(right);
 }
 
-Node* search(Node* v, int target) {
+Node* bst_search(Node* v, int target) {
 	if (v == NULL || v->data == target) return v;
-
 	if (target < v->data) return search(v->left, target);
-	return search(v->right, target);
+	return bst_search(v->right, target);
 }
 
-Node* min(Node* v) {
+Node* bst_min(Node* v) {
 	if (v == NULL || v->left == NULL) return v;
-	return min(v->left);
+	return bst_min(v->left);
 }
 
-Node* max(Node* v) {
+Node* bst_max(Node* v) {
 	if (v == NULL || v->right == NULL) return v;
-	return max(v->right);
+	return bst_max(v->right);
+}
+
+// Wrapper for calling bst_get_successor with 1 parameter
+Node* bst_successor(Node* v) {
+	if (v == NULL) return v;
+	return bst_get_successor(v, v);
+}
+
+// NOTE: this recursive algorithm runs at O(h^2), which, in a perfect tree, is O(log^2 n),
+// and can decay in the worst case to O(n^2)
+// By contrast, the standard iterative solution is O(h), which is O(log n) in a perfect
+// tree and decays to O(n). The recursive solution is always worse. It is included
+// simply because I came up with it and this project is just for fun.
+Node* bst_get_successor(Node* v, Node* origin) {
+	if (v->right != NULL) {
+		if (bst_min(v->right)->data > origin->data) {
+			return bst_min(v->right);
+		}
+	}
+	if (v->parent != NULL && v == v->parent->left) return v->parent;
+	if (v->parent != NULL) return bst_get_successor(v->parent, origin);
+	return NULL;
 }
