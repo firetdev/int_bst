@@ -68,12 +68,6 @@ Node* bst_max(Node* v) {
 	return bst_max(v->right);
 }
 
-// Wrapper for calling bst_get_successor with 1 parameter
-Node* bst_successor(Node* v) {
-	if (v == NULL) return v;
-	return bst_get_successor(v, v);
-}
-
 // NOTE: this recursive algorithm runs at O(h^2), which, in a perfect tree, is O(log^2 n),
 // and can decay in the worst case to O(n^2)
 // By contrast, the standard iterative solution is O(h), which is O(log n) in a perfect
@@ -90,6 +84,12 @@ Node* bst_get_successor(Node* v, Node* origin) {
 	if (v->parent != NULL && v == v->parent->left) return v->parent;
 	if (v->parent != NULL) return bst_get_successor(v->parent, origin);
 	return NULL;
+}
+
+// Wrapper for calling bst_get_successor with 1 parameter
+Node* bst_successor(Node* v) {
+	if (v == NULL) return v;
+	return bst_get_successor(v, v);
 }
 
 int bst_get_height(Node* v) {
