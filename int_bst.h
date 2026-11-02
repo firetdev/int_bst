@@ -40,6 +40,35 @@ void bst_add_node(int value, Node** head_ref) {
 	bst_update_height(parent_node);
 }
 
+void bst_delete(Node* v) {
+	if (v == NULL) return;
+
+	int children = (v->left != NULL) + (v->right != NULL);
+	Node** side = NULL;
+
+	if (v->parent != NULL) {
+		side = (v == v->parent->left) ? &(v->parent->left) : &(v->parent->right);
+	}
+
+	if (children == 2 || v->parent == NULL) {
+		Node* successor = bst_successor(v);
+		v->data = successor->data;
+		bst_delete(successor);
+	} else if (children == 1) {
+		Node* child = (v->left != NULL) ? v->left : v->right;
+		child->parent = v->parent;
+		*side = child;
+		free(v);
+	} else {
+		*side = NULL;
+		free(v);
+	}
+
+	if (v->parent != NULL) {
+		bst_update_height(v->parent);
+	}
+}
+
 void bst_free(Node* curr) {
 	if (curr == NULL) return;
 
