@@ -92,6 +92,25 @@ Node* bst_successor(Node* v) {
 	return bst_get_successor(v, v);
 }
 
+Node* bst_get_predecessor(Node* v, Node* origin) {
+	if (v == NULL) return v;
+
+	if (v->left != NULL) {
+		if (bst_max(v->left)->data > origin->data) {
+			return bst_max(v->left);
+		}
+	}
+	if (v->parent != NULL && v == v->parent->right) return v->parent;
+	if (v->parent != NULL) return bst_get_predecessor(v->parent, origin);
+	return NULL;
+}
+
+// Wrapper for calling bst_get_predecessor with 1 parameter
+Node* bst_predecessor(Node* v) {
+	if (v == NULL) return v;
+	return bst_get_predecessor(v, v);
+}
+
 int bst_get_height(Node* v) {
 	return (v == NULL) ? -1 : v->height;
 }
