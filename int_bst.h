@@ -1,5 +1,6 @@
 #include <stdlib.h>
 
+// Type declarations
 typedef struct Node {
 	int data;
 	int height;
@@ -8,7 +9,12 @@ typedef struct Node {
 	struct Node* parent;
 } Node;
 
-void bst_update_height(Node* v);  // Forward declaration
+typedef void (*bst_callback)(Node*, void*);
+
+// Forward declarations
+void bst_update_height(Node* v);
+Node* bst_successor(Node* v);
+Node* bst_predecessor(Node* v);
 
 void bst_add_node(int value, Node** head_ref) {
 	Node* new_node = malloc(sizeof(*new_node));
@@ -40,23 +46,34 @@ void bst_add_node(int value, Node** head_ref) {
 	bst_update_height(parent_node);
 }
 
-void bst_delete(Node* v) {
+// This algorithm is terrible. I should really redo it
+void bst_delete(Node** head, Node* v) {
 	if (v == NULL) return;
 
 	int children = (v->left != NULL) + (v->right != NULL);
 	Node** side = NULL;
 
-	if (v->parent != NULL) {
-		side = (v == v->parent->left) ? &(v->parent->left) : &(v->parent->right);
+	Node* parent = v->parent;
+
+	if (parent != NULL) {
+		side = (v == parent->left) ? &(parent->left) : &(parent->right);
+	} else if (children == 0) {
+		free(*head);
+		*head = NULL;
+		return;
 	}
 
-	if (children == 2 || v->parent == NULL) {
-		Node* successor = bst_successor(v);
-		v->data = successor->data;
-		bst_delete(successor);
+	if (children == 2 || parent == NULL) {
+		Node* replacement = (bst_successor(v) == NULL) ? bst_predecessor(v) : bst_successor(v);
+		if (replacement == NULL) {
+			free(v);
+		} else {
+			v->data = replacement->data;
+			bst_delete(head, replacement);
+		}
 	} else if (children == 1) {
 		Node* child = (v->left != NULL) ? v->left : v->right;
-		child->parent = v->parent;
+		child->parent = parent;
 		*side = child;
 		free(v);
 	} else {
@@ -64,8 +81,8 @@ void bst_delete(Node* v) {
 		free(v);
 	}
 
-	if (v->parent != NULL) {
-		bst_update_height(v->parent);
+	if (parent != NULL) {
+		bst_update_height(parent);
 	}
 }
 
@@ -91,6 +108,27 @@ Node* bst_search(Node* v, int target) {
 	if (v == NULL || v->data == target) return v;
 	if (target < v->data) return bst_search(v->left, target);
 	return bst_search(v->right, target);
+}
+
+void bst_inorder(Node* v, bst_callback cb, void* context) {
+	if (v == NULL) return;
+	bst_inorder(v->left, cb, context);
+	cb(v, context);
+	bst_inorder(v->right, cb, context);
+}
+
+void bst_preorder(Node* v, bst_callback cb, void* context) {
+	if (v == NULL) return;
+	cb(v, context);
+	bst_preorder(v->left, cb, context);
+	bst_preorder(v->right, cb, context);
+}
+
+void bst_postorder(Node* v, bst_callback cb, void* context) {
+	if (v == NULL) return;
+	bst_postorder(v->left, cb, context);
+	bst_postorder(v->right, cb, context);
+	cb(v, context);
 }
 
 Node* bst_min(Node* v) {
@@ -131,7 +169,7 @@ Node* bst_get_predecessor(Node* v, Node* origin) {
 	if (v == NULL) return v;
 
 	if (v->left != NULL) {
-		if (bst_max(v->left)->data > origin->data) {
+		if (bst_max(v->left)->data < origin->data) {
 			return bst_max(v->left);
 		}
 	}
