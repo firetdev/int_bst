@@ -69,6 +69,12 @@ void bst_delete(Node* v) {
 	}
 }
 
+// O(n) time and space
+int bst_size(Node* v) {
+	if (v == NULL) return 0;
+	return 1 + bst_size(v->left) + bst_size(v->right);
+}
+
 void bst_free(Node* curr) {
 	if (curr == NULL) return;
 
